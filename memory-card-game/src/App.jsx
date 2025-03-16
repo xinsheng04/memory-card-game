@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import './App.css'
+import Modal from './components/modal';
 import Gameboard from './components/Gameboard';
 const difficultyList = [
   {level: 1, title: "casual", cards: 5},
@@ -22,7 +23,8 @@ function App() {
     else{
       modalRef.current.close();
     }
-  }, [gameCondition, modalRef]);
+  }, [gameCondition]);
+  
   function startGame(level){
     setLevel(level);
     setGameCondition("ingame");
@@ -30,6 +32,10 @@ function App() {
   function endGame(result, highScore, level){
     setLastGameData({highScore, level})
     setGameCondition(result);
+  }
+  function callGameEndDummy(level){
+    setLastGameData({highScore: 2, level});
+    setGameCondition("gameover");
   }
   return(
     <div>
@@ -41,7 +47,7 @@ function App() {
        difficultyList={difficultyList}
        startGame={startGame}
        />
-      {gameCondition === "ingame" && <Gameboard callGameEnd={endGame} difficultyDetails={difficultyList[level-1]}/>}
+      {gameCondition === "ingame" && <Gameboard callGameEnd={callGameEndDummy} difficultyDetails={difficultyList[level-1]}/>}
     </div>
   );
 }

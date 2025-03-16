@@ -1,7 +1,8 @@
-import { useImperativeHandle, useRef} from "react";
+import { useImperativeHandle, useRef } from "react";
+import { createPortal } from "react-dom";
 import ChoiceSelector from "./ChoiceSelector";
 
-export default function Modal({ref, condition, highScore=0, startGame, difficultyList, level=0}){
+export default function Modal({ref, condition, highScore=0, startGame, difficultyList, level=1}){
   const dialogRef = useRef();
   const difficultyRef = useRef(level);
   useImperativeHandle(ref, ()=>({
@@ -13,14 +14,17 @@ export default function Modal({ref, condition, highScore=0, startGame, difficult
   function beginNewGame (){
     startGame(difficultyRef.current);
   }
-
-  return(
-    <dialog ref={dialogRef}>
+  // if(condition === "gameover"){
+  //   console.log({ref, condition, highScore, difficultyList, level});
+  //   console.log(difficultyList[difficultyRef.current-1]);
+  // }
+  return createPortal(
+    <dialog ref={dialogRef} className="m-auto p-5">
       {condition ==="victory" || condition === "gameover" ? 
       <div>
         <h1>Game Over!</h1>
         <h3>Your high score: {highScore}</h3>
-        <h3>Difficulty level: {difficultyList[difficultyRef.current-1]}</h3>
+        <h3>Difficulty level: {difficultyList[level-1].title}</h3>
       </div> 
       : 
       <div>
@@ -38,6 +42,6 @@ export default function Modal({ref, condition, highScore=0, startGame, difficult
         />
         <button onClick={beginNewGame}>New Game</button>
       </div>
-    </dialog>
+    </dialog>, document.getElementById('modal')
   )
 }

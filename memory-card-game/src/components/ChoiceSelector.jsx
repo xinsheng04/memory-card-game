@@ -6,30 +6,29 @@ import { useState } from "react";
 // displayKey: key to be shown in the UI
 export default function ChoiceSelector({choiceList, choiceRef, selectionID, defaultValue, displayKey}){
   const [selected, setSelected] = useState(defaultValue); //stores the ID only
-  const unselectedButtonCss = 'bg-blue-400 font-medium';
-  const defaultButtonCss = ' rounded-2xl p-3.5';
+  const unselectedButtonCss = ' bg-blue-400 font-medium';
+  const defaultButtonCss = 'rounded-2xl p-3.5 cursor-pointer';
   const activeCss = ' bg-amber-600 font-bold';
   function onSelect(id){
     choiceRef.current = id;
     setSelected(id);
   }
   return(
-    <ul className="flex flex-row gap-2.5 my-3 mx-2">
-      <li>
+    <ul className="flex flex-row gap-5 my-3 mx-2">
         {
         choiceList.map(choice=>{
-          return(
-            <button 
-            key={choice[selectionID]} 
-            onClick={()=>onSelect(choice[selectionID])}
-            className={defaultButtonCss + (choice[selectionID]==selected ? activeCss : unselectedButtonCss)}
-            >
-              {choice[displayKey]}
-            </button>
-          )
+            return(
+              <li key={choice[selectionID]}>
+                <button
+                onClick={()=>onSelect(choice[selectionID])}
+                className={defaultButtonCss + (choice[selectionID]==selected ? activeCss : unselectedButtonCss)}
+                >
+                  {choice[displayKey]}
+                </button>
+              </li>
+            )
         })
         }
-      </li>
     </ul>
   );
 }
