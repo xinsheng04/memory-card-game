@@ -5,10 +5,10 @@ import Gameboard from './components/Gameboard';
 // cards: number of rounds per game. 
 // The number of unique cards per round decreases by 1 for each round, but never goes below 1.
 const difficultyList = [
-  {level: 1, title: "casual", rounds: 3},
-  {level: 2, title: "regular", rounds: 6},
-  {level: 3, title: "brutal", rounds: 9},
-  {level: 4, title: "mega-brutal", rounds: 12},
+  {level: 1, title: "casual", rounds: 5},
+  {level: 2, title: "regular", rounds: 10},
+  {level: 3, title: "brutal", rounds: 15},
+  {level: 4, title: "mega-brutal", rounds: 30},
 ];
 const gameConditions = ["newgame", "ingame", "gameover", "victory"];
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import Card from './Card';
 const CARDS = [
   'Steve',
@@ -66,16 +66,6 @@ export default function Gameboard({ difficultyDetails, callGameEnd }) {
     }
   }, []);
 
-  useEffect(()=>{
-    if(cardList.filter((card, index)=>cardList.indexOf(card) !== index).length > 0){
-      callGameEnd("gameover", cardList.length-1, cardList);
-      setCardList([]);
-    } else if(cardList.length === difficultyDetails.rounds){
-      callGameEnd("victory", cardList.length, cardList);
-      setCardList([]);
-    }
-  }, [cardList])
-
   // Credit: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
   // Durstenfeld shuffle
   function shuffleArray(array) {
@@ -89,25 +79,69 @@ export default function Gameboard({ difficultyDetails, callGameEnd }) {
 
   // fetch cards from API and cardList
   function fetchRoundCards() {
-    // fetch all cards from cardList, the remaining from the unique list of cards
-    const roundCards = [...cardList];
-    // fetch random unique cards from fetchedCards
-    const remainingCards = fetchedCards.filter(card => !roundCards.includes(card));
-    // console.log(remainingCards.filter(value => roundCards.includes(value))); //this was used to check for duplicates
-    for (let i = cardList.length; i < 9; i++) {
-      const randomIndex = Math.floor(Math.random() * remainingCards.length);
-      roundCards.push(remainingCards[randomIndex]);
-      remainingCards.splice(randomIndex, 1);
+    // fetch up to 8 random cards
+    const roundCards=[];
+    for(let i=0; i < Math.min(cardList.length, 8); i++){
+      const randomIndex = Math.floor(Math.random() * fetchedCards.length);
+      if(!roundCards.includes(fetchedCards[randomIndex]))
+        roundCards.push(fetchedCards[randomIndex]);
+      else 
+        i--; //rerun this round
     }
+    // fetch at least 1 card guaranteed to be the solution for a particular round
+    const remainingCards = fetchedCards.filter(card => !cardList.includes(card) && !roundCards.includes(card));
+    // console.log(remainingCards.filter(value => roundCards.includes(value))); //this was used to check for duplicates
+    if(remainingCards.length > 0){
+      for (let i = Math.min(cardList.length, 8); i < 9; i++) {
+        const randomIndex = Math.floor(Math.random() * remainingCards.length);
+        roundCards.push(remainingCards[randomIndex]);
+        remainingCards.splice(randomIndex, 1);
+      }
+    } else {
+      // fetch one more random card
+      for(let i=roundCards.length; i < 9; i++){
+        const randomIndex = Math.floor(Math.random() * fetchedCards.length);
+        if(!roundCards.includes(fetchedCards[randomIndex]))
+          roundCards.push(fetchedCards[randomIndex]);
+        else 
+          i--; //rerun this round
+      }
+    }
+    // The following commented out code is for testing the code during gameplay (AKA for cheating)
+    // try{
+    //   // The error happens after round 30 due to no solution existing, as there are only 30 cards for this game
+    //   const solution = roundCards.filter(card=>!cardList.includes(card));
+    //   console.log(solution[0].name + ' ' + (cardList.length+1));
+    // } catch(error){
+    //   console.log('End of game.');
+    // }
+
     // shuffle cards
     shuffleArray(roundCards);
     return roundCards;
   }
 
-  function handleClick(name){
-    setCardList(prevClassList => [...prevClassList, name]);
+  function handleClick(card){
+    setCardList(prevClassList => [...prevClassList, card]);
   }
 
+  // if this component is changed, this code may cause the following error upon victory or gameover
+  // App.jsx:35 Cannot update a component (`App`) while rendering a different component (`Gameboard`). 
+  // This code probably shouldn't be placed in useEffect, could consider refactoring in the future if needed.
+  useEffect(()=>{
+    if(cardList.filter((card, index)=>cardList.indexOf(card) !== index).length > 0){
+      setCardList([]);
+      callGameEnd("gameover", cardList.length-1, cardList);
+      return;
+    } else if(cardList.length === difficultyDetails.rounds){
+      setCardList([]);
+      callGameEnd("victory", cardList.length, cardList);
+      return;
+    }
+  }, [cardList]);
+
+  // This code section will run again once after victory or gameover as the game end checker is placed in a useEffect block
+  // which is only run after rendering. Fortunately, the fetchRoundCards fn can deal with this situation.
   let roundCards = [];
   if(fetchedCards.length > 0){
     roundCards = fetchRoundCards();
@@ -123,7 +157,6 @@ export default function Gameboard({ difficultyDetails, callGameEnd }) {
           )
         })}
       </ul>
-      {/* <button onClick={() => callGameEnd(difficultyDetails.level)}>End</button> */}
     </div>
   )
 }
