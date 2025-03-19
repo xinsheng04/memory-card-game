@@ -7,7 +7,7 @@ import { useState } from "react";
 export default function ChoiceSelector({choiceList, choiceRef, selectionID, defaultValue, displayKey}){
   const [selected, setSelected] = useState(defaultValue); //stores the ID only
   const unselectedButtonCss = ' bg-blue-400 font-medium';
-  const defaultButtonCss = 'rounded-2xl p-3.5 cursor-pointer';
+  const defaultButtonCss = 'rounded-2xl p-3.5 cursor-pointer hover:bg-yellow-300';
   const activeCss = ' bg-amber-600 font-bold';
   function onSelect(id){
     choiceRef.current = id;
